@@ -1,0 +1,21 @@
+w_metadata ffxivlauncher_ge games \
+    title="patched Final Fantasy XIV Launcher" \
+    media="download" \
+    file1="XIVLauncher.exe" \
+    homepage="https://github.com/goatcorp/FFXIVQuickLauncher"
+
+load_ffxivlauncher_ge()
+{
+    # Note: using AppData since it's arch indepedent
+    W_APPDATA_WIN="$(w_expand_env AppData)"
+    W_APPDATA_UNIX="$(w_pathconv -u "${W_APPDATA_WIN}")"
+
+    case "${W_APPDATA_WIN}" in
+        "") w_info "$(winetricks_print_wineprefix_info)" ; w_die "${WINE} cmd.exe /c echo '%AppData%' returned empty string, error message \"$(cat ${W_TMP_EARLY}/early_wine.err.txt)\" ";;
+        %*) w_info "$(winetricks_print_wineprefix_info)" ; w_die "${WINE} cmd.exe /c echo '%AppData%' returned unexpanded string '${W_PROGRAMS_WIN}' ... this can be caused by a corrupt wineprefix (\`wineboot -u\` may help), by an old wine, or by not owning ${WINEPREFIX}" ;;
+    esac
+
+    w_download https://kamori.goats.dev/Proxy/Update/Release/Setup.exe f484fc20b98fa75029b0e10fbc72db4dc2f5744e903aa0874292ce0cf091ab2b
+    w_try mkdir -p "${W_APPDATA_UNIX}/../Local/XIVLauncher"
+    w_try cp "${W_CACHE}/${W_PACKAGE}/Setup.exe" "${W_APPDATA_UNIX}/../Local/XIVLauncher/XIVLauncher.exe"
+}
